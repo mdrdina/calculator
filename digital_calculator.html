@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>calculator</title>
+	<style type="text/css">
+
+		.calculator_body{
+			display: grid;
+			justify-content: center;
+			align-content: center;
+			grid-template-columns: repeat(4, 80px);
+			grid-template-rows: minmax(100px, auto) repeat(5, 80px);
+		}
+		.calculator_body > button {
+			cursor: pointer;
+			font-size: 20px;
+			outline: none;
+			border: 1px solid #fff;
+			color: #fff;
+			background-color: rgba(0, 0, 0, 0.9);
+		}
+		.calculator_body > button:hover {
+			background-color: rgba(0, 0, 0, 0.8);
+		}
+		.span_2 {
+			grid-column: span 2;
+		}
+		.result {
+			grid-column: 1/-1;
+			background-color: rgba(0, 0, 0, 0.1);
+			display: flex;
+			align-items: flex-end;
+			flex-direction: column;
+			justify-content: space-around;
+			height: 120px;
+		}
+		.calculator_body .history {
+			font-size: 22px;
+		}
+		.calculator_body .output{
+			font-size: 40px;
+		}
+		p{
+			margin: 5px;
+		}
+	</style>
+</head>
+<body>
+<div class="calculator_body">
+	<div class="result">
+		<div class="history">
+			<p id="history-value"></p>
+		</div>
+		<div class="output">
+			<p id="output-value"></p>
+		</div>
+	</div>
+	<button class="operator" id="clear">AC</button>
+	<button class="operator" id="backspace">DEL</button>
+	<button class="operator" id="%">%</button>
+	<button class="operator" id="+">+</button>
+	<button class="number" id="1">1</button>
+	<button class="number" id="2">2</button>
+	<button class="number" id="3">3</button>
+	<button class="operator" id="-">-</button>
+	<button class="number" id="4">4</button>
+	<button class="number" id="5">5</button>
+	<button class="number" id="6">6</button>
+	<button class="operator" id="*">*</button>
+	<button class="number" id="7">7</button>
+	<button class="number" id="8">8</button>
+	<button class="number" id="9">9</button>
+	<button class="operator" id="/">&#247;</button>
+	<button class="number" id="."></button>
+	<button class="number" id="0">0</button>
+	<button class="span_2 operator" id="=">=</button>
+</div>
+<script type="text/javascript">
+	function getHistory(){
+	return document.getElementById("history-value").innerText;
+	}
+	function printHistory(num){
+		document.getElementById("history-value").innerText=num;
+	}
+	function getOutput(){
+		return document.getElementById("output-value").innerText;
+	}
+	function printOutput(num){
+		if(num==""){
+			document.getElementById("output-value").innerText=num;
+		}
+		else{
+			document.getElementById("output-value").innerText=getFormattedNumber(num);
+		}	
+	}
+	function getFormattedNumber(num){
+		if(num=="-"){
+			return "";
+		}
+		var n = Number(num);
+		var value = n.toLocaleString("en");
+		return value;
+	}
+	function reverseNumberFormat(num){
+		return Number(num.replace(/,/g,''));
+	}
+	var operator = document.getElementsByClassName("operator");
+	for(var i =0;i<operator.length;i++){
+		operator[i].addEventListener('click',function(){
+			if(this.id=="clear"){
+				printHistory("");
+				printOutput("");
+			}
+			else if(this.id=="backspace"){
+				var output=reverseNumberFormat(getOutput()).toString();
+				if(output){//if output has a value
+					output= output.substr(0,output.length-1);
+					printOutput(output);
+				}
+			}
+			else{
+				var output=getOutput();
+				var history=getHistory();
+				if(output==""&&history!=""){
+					if(isNaN(history[history.length-1])){
+						history= history.substr(0,history.length-1);
+					}
+				}
+				if(output!="" || history!=""){
+					output= output==""?output:reverseNumberFormat(output);
+					history=history+output;
+					if(this.id=="="){
+						var result=eval(history);
+						printOutput(result);
+						printHistory(history);
+					}
+					else{
+						history=history+this.id;
+						printHistory(history);
+						printOutput("");
+					}
+				}
+			}
+			
+		});
+	}
+
+	var number = document.getElementsByClassName("number");
+	for(var i =0;i<number.length;i++){
+		number[i].addEventListener('click',function(){
+			var output=reverseNumberFormat(getOutput());
+			if(output == '.' && this.output.includes('.')){
+				return;
+			}
+			else if(output!=NaN){
+				output=output+this.id;
+				printOutput(output);
+			}
+		});
+	}
+</script>
+</body>
+</html>
